@@ -17,14 +17,10 @@ app.get("/", (req, res) => {
 });
 
 app.get("/dashboard", verifyToken, (req, res) => {
-  // verifyToken is middleware
   jwt.verify(req.token, "the_secret_key", (err) => {
-    // verifies token
     if (err) {
-      // if error, respond with 401 code
       res.sendStatus(401);
     } else {
-      // otherwise, respond with private data
       res.json({
         events: events,
       });
@@ -40,12 +36,19 @@ app.post("/register", (req, res) => {
       password: req.body.password,
       // In a production app, you'll want to encrypt the password
     };
-
     const data = JSON.stringify(user, null, 2);
-    var dbUserEmail = require("./db/user.json").email;
 
-    if (dbUserEmail === req.body.email) {
-      res.sendStatus(400);
+    var dbUserEmail = require("./db/user.json").email;
+    var errorsToSend = [];
+
+    if (dbUserEmail === user.email) {
+      errorsToSend.push("An account with this email already exists.");
+    }
+    if (user.password.length < 5) {
+      errorsToSend.push("Password too short.");
+    }
+    if (errorsToSend.length > 0) {
+      res.status(400).json({ errors: errorsToSend });
     } else {
       fs.writeFile("./db/user.json", data, (err) => {
         if (err) {
@@ -82,7 +85,7 @@ app.post("/login", (req, res) => {
       name: userInfo.name,
     });
   } else {
-    res.sendStatus(400);
+    res.status(401).json({ error: "Invalid login. Please try again." });
   }
 });
 

@@ -1,22 +1,17 @@
 <template>
   <div>
-    <form @submit.prevent="register">
-      <label for="name">Name:</label>
-      <input v-model="name" type="text" name="name" value />
-
+    <form @submit.prevent="login">
       <label for="email">Email:</label>
       <input v-model="email" type="email" name="email" value />
 
       <label for="password">Password:</label>
       <input v-model="password" type="password" name="password" value />
 
-      <button type="submit" name="button">Register</button>
+      <button type="submit" name="button">Login</button>
 
-      <ul>
-        <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
-      </ul>
+      <p>{{ error }}</p>
 
-      <router-link to="/login">Already have an account? Login.</router-link>
+      <router-link to="/register">Don't have an account? Register.</router-link>
     </form>
   </div>
 </template>
@@ -25,17 +20,15 @@
 export default {
   data() {
     return {
-      name: "",
       email: "",
       password: "",
-      errors: null
+      error: null
     };
   },
   methods: {
-    register() {
+    login() {
       this.$store
-        .dispatch("register", {
-          name: this.name,
+        .dispatch("login", {
           email: this.email,
           password: this.password
         })
@@ -43,7 +36,7 @@ export default {
           this.$router.push({ name: "dashboard" });
         })
         .catch(err => {
-          this.errors = err.response.data.errors;
+          this.error = err.response.data.error;
         });
     }
   }
